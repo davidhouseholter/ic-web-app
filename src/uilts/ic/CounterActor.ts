@@ -21,7 +21,7 @@ function createActor(identity?: Identity) {
   const agent = new HttpAgent({ host, identity });
   const actor = Actor.createActor<_SERVICE>(Counter_idl, {
     agent,
-    canisterId: Counter_canister_id,
+    canisterId: Counter_canister_id, 
   });
   return { actor, agent };
 }
@@ -43,7 +43,17 @@ class ActorController {
     const { agent, actor } = createActor(identity);
     // The root key only has to be fetched for local development environments
     if (isLocalEnv) {
-      await agent.fetchRootKey();
+      console.log('sdfd')
+      //await agent.fetchRootKey();
+
+      await agent.fetchRootKey().then(() => {
+        console.log('here')
+      }).catch((err) => {
+        console.warn(
+          "Unable to fetch root key. Check to ensure that your local replica is running"
+        );
+        console.error(err);
+      });
     }
     return actor;
   }

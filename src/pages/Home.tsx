@@ -22,14 +22,14 @@ export const Home = () => {
     const a = await (await CounterActor.actor).getValue();
     setCount(a.toString())
   }
-  const getMe = async () => {
-    const a = await (await CounterActor.actor).callerPrincipal();
-    setMe(a.toString())
-  }
+  // const getMe = async () => {
+  //   const a = await (await CounterActor.actor).callerPrincipal();
+  //   setMe(a.toString())
+  // }
 
   useEffect(() => {
     refreshCounter()
-    getMe()
+    // getMe()
   }, [])
 
   const onIncrementClick = async () => {

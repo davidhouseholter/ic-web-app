@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "start": "dfx start --emulator --background",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
@@ -10,9 +11,9 @@
     "generate": "run-s generate:*",
     "generate:codegen": "graphql-codegen",
     "ic:deploy": "pnpm ic:counter && pnpm ic:generate:counter",
-    "ic:counter": "dfx deploy counter || exit 0;",
-    "ic:generate:counter": "dfx generate counter || exit 0;",
-    "ic:id": "dfx deploy internet_identity --no-wallet --argument '(null)' || exit 0;"
+    "ic:counter": "dfx deploy counter",
+    "ic:generate:counter": "dfx generate counter",
+    "ic:id": "II_ENV=development dfx deploy internet_identity --no-wallet --argument '(null)'"
   },
   "dependencies": {
     "@apollo/client": "^3.6.6",

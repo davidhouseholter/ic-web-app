@@ -43,20 +43,22 @@ export const Layout: FC<Props> = ({ head, children, title }) => {
     // const b = await actor.callerPrincipal()
     // console.log(b)
     // setMe(b.toString())
-    const authClient = await AuthClient.create();
-    const identity = await authClient.getIdentity();
-    console.log(identity.getPrincipal())
-    const actor = Actor.createActor(Counter_idl, {
-      agent: new HttpAgent({
-        identity,
-      }),
-      canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai",
-    });
-    const value = await actor.callerPrincipal().then(principal => {
-      console.log(principal)
-    });
+    //const authClient = await AuthClient.create();
 
-    console.log(value)
+    const identity = await authClient.getIdentity();
+    const agent =  new HttpAgent({
+      identity
+    });
+    
+    await agent.fetchRootKey();
+    console.log(identity!.getPrincipal().toText())
+    const actor = Actor.createActor(Counter_idl, {
+      agent: agent,
+      canisterId: Counter_canister_id,
+    });
+    const value = await actor.callerPrincipal();
+
+    console.log(value.toText())
   }
   return (
     <>
