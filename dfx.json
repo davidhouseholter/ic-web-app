@@ -1,14 +1,11 @@
 {
   "canisters": {
-    "counter": {
-      "main": "service/counter.mo",
+    "api": {
+      "main": "src_backend/Api.mo",
       "type": "motoko"
     },
-    "access_hello": {
-      "main": "service/access_hello.mo",
-      "type": "motoko"
-    },
-    "ic_web_app": {
+    
+    "app": {
       "dependencies": [
         "counter"
       ],
@@ -21,10 +18,14 @@
       ],
       "type": "assets"
     },
+    "counter": {
+      "main": "src_backend/counter.mo",
+      "type": "motoko"
+    },
     "internet_identity": {
       "type": "custom",
-      "candid": "service/internet_identity.did",
-      "wasm": "service/internet_identity.wasm",
+      "candid": "src_backend/ii/internet_identity.did",
+      "wasm": "src_backend/ii/internet_identity.wasm",
   
       "_build": "curl -sSL https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm -o internet_identity.wasm"
     }

@@ -4,7 +4,7 @@ import { AuthClient } from '@dfinity/auth-client';
 // Where the IDP should be servied from
 const IDENTITY_URL =
   new URLSearchParams(document.location.search).get('internetIdentityUrl') ||
-  import.meta.env.REACT_APP_INTERNET_IDENTITY_URL || 'http://localhost:8000?canisterId=fterm-bydaq-aaaaa-aaaaa-c';
+  import.meta.env.REACT_APP_INTERNET_IDENTITY_URL || 'http://localhost:8000?canisterId=cvccv-qqaaq-aaaaa-aaaaa-c';
  // 'https://identity.ic0.app';
 
 /*
@@ -31,7 +31,6 @@ class AuthClientWrapper {
         identityProvider: IDENTITY_URL,
         onSuccess: async () => {
           const i = this.authClient?.getIdentity();
-          console.log('login', i)
           resolve(i);
         }
       });

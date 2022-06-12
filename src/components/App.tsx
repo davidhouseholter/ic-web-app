@@ -1,8 +1,10 @@
-import { FC } from 'react'
+import { useAppState } from "@/utils/AppState";
 
-
-export const App: FC = ({ children }) => {
+export const App = ({children}) => {
+  const { currentItems } = useAppState();
   return (
-    <>{children}</>
+    <>
+    {children}
+    </>
   )
 }

@@ -5,18 +5,23 @@ import {
   KEY_LOCALSTORAGE_USER,
 } from "./index";
 
-import { actorController as counterController } from "./ic/CounterActor";
+import { actorController } from "../services/ApiActor";
 import { Identity } from "@dfinity/agent";
+import { getProfileFull, getUserNameByPrincipal, logoutAPI } from "@/services/ApiService";
+import { Loading } from "notiflix";
 
 export interface AuthContext {
   isAuthenticated: boolean;
   isAuthReady: boolean;
-  hasCanCanAccount: boolean;
+  hasUserAccount: boolean;
+  hasCheckedICUser: boolean;
   identity?: Identity;
   logIn: () => void;
   logOut: () => void;
   user: any | undefined;
   setUser: (p: any | undefined) => void;
+  setHasCheckedICUser: (p: any | undefined) => void;
+  setHasCheckedStarted: (p: any | undefined) => void;
 }
 
 // Provider hook that creates auth object and handles state
@@ -45,11 +50,14 @@ export function useProvideAuth(authClient): AuthContext {
       // Check to make sure your local storage user exists on the backend, and
       // log out if it doesn't (this is when you have your user stored in local
       // storage but the user was cleared from the backend)
-      //getUserFromCanister(lsUser.userName).then((user_) => !user_ && logOut());
-      return () => void 0;
-    }
+      getProfileFull(lsUser.userName).then((user_) => !user_ && logOut());
+      return true;
+    } 
+    return false;
   };
-
+  const [hasCheckedStarted, setHasCheckedStarted] = useState<boolean>(false);
+  const [hasCheckedICUser, setHasCheckedICUser] = useState<boolean>(false);
+ 
   // Once the auth client is initialized, get the identity and check that they
   // are authenticated, then set them to be fully logged in.
   useEffect(() => {
@@ -61,9 +69,25 @@ export function useProvideAuth(authClient): AuthContext {
         setIsAuthenticatedLocal(isAuthenticated || false);
         _setIdentity(identity);
         if (isAuthenticated) {
-          setUserFromLocalStorage();
+          const result = setUserFromLocalStorage();
+          if(!result)
+          {
+            const id = identity!.getPrincipal()
+            getUserNameByPrincipal(id).then((username) => {
+              if (username) {
+                // User exists! Set user and redirect to /feed.
+                getProfileFull(username[0]).then((user) => {
+                  setUser(user!);
+                });
+              } 
+            });
+            
+          }
+        } else {
+          setHasCheckedICUser(true);
         }
         setAuthClientReady(true);
+        
       }
     );
   }, [isAuthClientReady]);
@@ -79,9 +103,9 @@ export function useProvideAuth(authClient): AuthContext {
         setAuthClientReady(true);
         setUserFromLocalStorage();
         if (!user) {
-          // getUserFromCanister(testUserParam).then(
-          //   (user_) => !user && user_ && setUser(user_)
-          // );
+          getProfileFull(testUserParam).then(
+            (user_) => !user && user_ && setUser(user_)
+          );
         }
       }
     }
@@ -110,16 +134,16 @@ export function useProvideAuth(authClient): AuthContext {
   }, [user]);
 
   useEffect(() => {
-    console.log('a', _identity)
     if (_identity && !_identity.getPrincipal().isAnonymous()) {
       // The auth client isn't ready to make requests until it's completed the
       // async authenticate actor method.
       setAuthClientReady(false);
-      counterController.authenticateActor(_identity).then(() => {
-        //setAuthClientReady(true);
+      actorController.authenticateActor(_identity).then(() => {
+        setAuthClientReady(true);
+        
       });
     } else {
-      counterController.unauthenticateActor();
+      actorController.unauthenticateActor();
 
     }
   }, [_identity]);
@@ -149,17 +173,70 @@ export function useProvideAuth(authClient): AuthContext {
     localStorage.removeItem(KEY_LOCALSTORAGE_USER);
     if (!authClient.ready) return;
     authClient.logout();
+    logoutAPI()
   }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (isAuthenticated) {
+        const id = identity!.getPrincipal()
+        if (!user && !id.isAnonymous()) {
+          getUserNameByPrincipal(id).then((username) => {
+            
+            if (username != null && username.length > 0) {
+              // User exists! Set user and redirect to /feed.
+              getProfileFull(username[0]).then((user) => {
+                setUser(user!);
+                
+                setHasCheckedICUser(true);
+                // localStorage.setItem(
+                //   KEY_LOCALSTORAGE_USER,
+                //   JSON.stringify({ ...user, rewards: user!.rewards }, (key, value) =>
+                //     typeof value === "bigint" ? value.toString() : value
+                //   )
+                // );
+                Loading.remove();
+              });
+            } else {
+              setHasCheckedICUser(true);
+              Loading.remove();
+            }
+            
+          });
+        }
+        else {
+          Loading.remove();
+          setHasCheckedICUser(true)
+        }
+      }
+      else {
+        Loading.remove();
+       
+      }
+    };
+    console.log(hasCheckedStarted)
+    if (hasCheckedStarted || !isAuthenticated) {
+
+    } else {
+      setHasCheckedStarted(true)
+      Loading.standard('Loading...');
+      fetchData();
+    }
+  }, [isAuthenticated]);
+
 
   return {
     isAuthenticated,
     isAuthReady: isAuthClientReady,
-    hasCanCanAccount: user !== undefined,
+    hasUserAccount: user !== undefined,
+    hasCheckedICUser: hasCheckedICUser,
     logIn,
     logOut,
     user,
     identity,
     setUser,
+    setHasCheckedICUser,
+    setHasCheckedStarted
   };
 }
 

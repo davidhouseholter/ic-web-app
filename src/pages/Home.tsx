@@ -1,112 +1,48 @@
 import { Layout } from '@/components'
-import { useAuth } from '@/uilts'
-import { css } from '@emotion/react'
-import { ExclamationIcon } from '@heroicons/react/outline'
-import { FormEvent, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import tw from 'twin.macro'
-
-import { actorController } from "../uilts/ic/CounterActor";
-const CounterActor = actorController;
-const styles = {
-  root: css`
-    ${tw`p-5`};
-  `,
-}
+import { Map } from '@/components/map/Map'
+import { createItem } from '@/services/ApiService';
+import { useAuth } from '@/utils';
+import { useAppState } from '@/utils/AppState'
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
-  const [me, setMe] = useState<string>()
+  const {currentItems, setCurrentItems} = useAppState();
+  const {user, identity} = useAuth();
 
-  const [count, setCount] = useState<string>()
-  const refreshCounter = async () => {
-    const a = await (await CounterActor.actor).getValue();
-    setCount(a.toString())
-  }
-  // const getMe = async () => {
-  //   const a = await (await CounterActor.actor).callerPrincipal();
-  //   setMe(a.toString())
-  // }
-
-  useEffect(() => {
-    refreshCounter()
-    // getMe()
-  }, [])
-
-  const onIncrementClick = async () => {
-    await (await CounterActor.actor).increment()
-    refreshCounter()
-  }
- 
-  const [error, setError] = useState("");
-  const [isCheckingICForUser, setIsCheckingICForUser] = useState(false);
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const usernameInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
-  const auth = useAuth();
-  // Get a user name from the user's principal and then fetch the user object
-  // with all the user's data. Show a loading message between these async
-  // backend calls happening.
-  useEffect(() => {
-    if (!auth.isAuthReady) return;
-    if (auth.isAuthenticated && auth.identity !== undefined) {
-      setIsCheckingICForUser(true);
-      const id = auth.identity.getPrincipal()
-      // console.log(id)
-      // getUserNameByPrincipal(id).then((username) => {
-      //   //console.log(username)
-      //   if (username) {
-      //     // User exists! Set user and redirect to /feed.
-      //     getUserFromCanister(username).then((user) => {
-      //       setIsCheckingICForUser(false);
-      //       auth.setUser(user!);
-      //       navigate("/feed");
-      //     });
-      //     setIsCheckingICForUser(false);
-      //   } else {
-      //     // Do nothing. Allow the user to create a userId
-      //     setIsCheckingICForUser(false);
-      //   }
-      // });
-    }
-
-
-  }, [auth.isAuthReady, auth.isAuthenticated, auth.identity]);
-  // Submit the form to signup with a new username, the backend ensures that
-  // the username is available.
-  async function submit(evt: FormEvent) {
-    // evt.preventDefault();
-    // evt.stopPropagation();
-    // setError("");
-
-    // // Get the username entered from the form.
-    // const username = usernameInputRef?.current?.value!;
-    // setIsSigningIn(true);
-    // // Check to make sure this username has not been taken. If this user already
-    // // has a username, it should have signed them in already.
-    // const isAvailable = await checkUsername(username);
-
-    // if (isAvailable) {
-    //   // Create a user on the backend and assign that user to frontend data.
-    //   const user = await createUser(username, auth.identity?.getPrincipal());
-    //   auth.setUser(user);
-    //   setIsSigningIn(false);
-    //   navigate("/feed");
-    // } else {
-    //   setError(`Username '${username}' is taken`);
-    //   setIsSigningIn(false);
-    // }
-  }
+const navigate = useNavigate();
   return (
     <Layout title="Home">
-      {auth.isAuthenticated && auth.user && (
-        <div css={styles.root}>Hello </div>
-      )}
-      {auth.isAuthenticated && !auth.user && (
-        <>
-
-Yay
-        </>
-      )}
+     <Map />
+    {user && currentItems?.length == 0 && (
+       <button
+       onClick={async () => {
+  
+        const item = await createItem({
+          caption: "Caption of the items" ,
+          name: "The  name of the item",
+          tags: [],
+        })
+       }}
+       >
+        Add Post
+       </button>
+    )}
+    {currentItems?.length > 0 && (
+      currentItems.map(item => (
+        <div key={item.itemId}>
+          <h3>{item.name}</h3>
+          <p>{item.caption}</p>
+          <p className='flex '>
+            <span className='mr-2'>Username: </span>
+            <a onClick={() => {
+              navigate(`/users/${item.userId}`)
+            }}
+            >{item.userId}</a>
+          </p>
+        </div>
+      ))
+    )}
     </Layout>
   )
 }

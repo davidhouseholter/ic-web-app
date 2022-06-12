@@ -1,6 +1,10 @@
-# ViteJS Boilerplate
+# Internet Computer Boilerplate
 
-This project is just a simple ViteJS boilerplate ready to go.
+This project is just a simple ViteJS boilerplate ready to go with a basic example of the Internet Computer application.
+
+- Sign Up with [Internet Identity](https://identity.ic0.app/)
+- Create User Profiles with IC User Principle
+- Basic CRUD Calls
 
 ## Stack Used
 
@@ -14,8 +18,6 @@ This project is just a simple ViteJS boilerplate ready to go.
 - [FontSource](https://fontsource.org/)
 - [Emotion](https://emotion.sh/)
 - [Twin.macro](https://github.com/ben-rogerson/twin.macro)
-- [Apollo GraphQL](https://www.apollographql.com/)
-- [GraphQL Codegen](https://www.graphql-code-generator.com/)
 
 ## Getting Started
 
@@ -23,6 +25,19 @@ Install all dependencies with pnpm
 
 ```bash
 pnpm install
+```
+
+Install all dependencies of [ICP](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove/)
+
+```bash
+ sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
+```
+
+
+Start the Replica, deploy the Internet Identity Canister, and depploy the "API" canister and generate the Typescript declarations.  
+
+```bash
+ pnpm ic:start-clean
 ```
 
 Then, run the development server:
@@ -33,4 +48,9 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the pages by modifying `src/pages`. The page auto-updates as you edit the file.
+You can start the replica later using the start script.
+
+```bash
+ pnpm ic:start
+```
+

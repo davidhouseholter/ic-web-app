@@ -36,8 +36,8 @@ module {
       pic: ?Types.ProfilePic;
     };
 
-    public type CreateVideo = {
-      info : Types.VideoInit;
+    public type CreateItem = {
+      info : Types.ItemInit;
     };
 
     public type LikeVideo = {
@@ -97,7 +97,7 @@ module {
     public type AbuseFlag = {
       reporter : Types.UserId;
       target : {
-        #video : Types.VideoId;
+        #item : Types.VideoId;
         #user : Types.UserId;
       };
       flag : Bool;
@@ -106,7 +106,7 @@ module {
     public type EventKind = {
       #reset : Types.TimeMode;
       #createProfile : CreateProfile;
-      #createVideo : CreateVideo;
+      #createItem : CreateItem;
       #likeVideo : LikeVideo;
       #superLikeVideo : SuperLikeVideo;
       #superLikeVideoFail : SuperLikeVideoFail;
@@ -245,7 +245,7 @@ module {
       likes = RelObj.RelObj(hash, equal);
       superLikes = RelObj.RelObj(hash, equal);
       uploaded = uploaded_;
-      eventLog = SeqObj.Seq<Event.Event>(Event.equal, null);
+      eventLog = SeqObj.Seq<Event>(Event.equal, null);
       var eventCount = 0;
       abuseFlagVideos = RelObj.RelObj(hash, equal);
       abuseFlagUsers = RelObj.RelObj(hash, equal);

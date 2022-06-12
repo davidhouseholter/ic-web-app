@@ -1,0 +1,40 @@
+type UserProfile__1 = record {userName: text;};
+type UserProfileFull = 
+ record {
+   rewards: nat;
+   userName: text;
+ };
+type UserProfile = record {userName: text;};
+type UserId__1 = text;
+type UserId = text;
+type Timestamp = int;
+type ItemInit = 
+ record {
+   caption: text;
+   name: text;
+   tags: vec text;
+ };
+type ItemId = text;
+type Item = 
+ record {
+   caption: text;
+   createdAt: Timestamp;
+   itemId: text;
+   name: text;
+   tags: vec text;
+   userId: UserId__1;
+   viewCount: nat;
+ };
+type API = 
+ service {
+   checkUsernameAvailable: (text) -> (bool) query;
+   createItem: (ItemInit) -> (opt ItemId);
+   createProfile: (text) -> (opt UserProfileFull);
+   getFeedItems: (opt nat) -> (opt vec Item) query;
+   getProfileFull: (opt UserId, UserId) -> (opt UserProfileFull) query;
+   getUserNameByPrincipal: (principal) -> (opt vec text);
+   getUserProfile: (UserId) -> (opt UserProfile__1) query;
+   getUsersPublic: (opt nat) -> (opt vec UserProfile) query;
+   whoami: () -> (principal) query;
+ };
+service : () -> API

@@ -1,5 +1,5 @@
 import Hash "mo:base/Hash";
-import Types "Types";
+import Types "../Types";
 
 module {
 public type Role = Types.Role;

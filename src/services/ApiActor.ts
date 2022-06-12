@@ -1,11 +1,11 @@
 import { Actor, HttpAgent, Identity } from "@dfinity/agent";
 import {
-  idlFactory as Counter_idl,
-  canisterId as Counter_canister_id,
-} from "../../declarations/counter/";
+  idlFactory,
+  canisterId,
+} from "@/declarations/api";
 
-import dfxConfig from "../../../dfx.json";
-import { _SERVICE } from "@/declarations/counter/counter.did";
+import dfxConfig from "../../dfx.json";
+import { _SERVICE } from "@/declarations/api/api.did";
 
 const DFX_NETWORK = import.meta.env.DFX_NETWORK || "local";
 const isLocalEnv = DFX_NETWORK === "local";
@@ -19,9 +19,9 @@ const host = getHost();
 
 function createActor(identity?: Identity) {
   const agent = new HttpAgent({ host, identity });
-  const actor = Actor.createActor<_SERVICE>(Counter_idl, {
+  const actor = Actor.createActor<_SERVICE>(idlFactory, {
     agent,
-    canisterId: Counter_canister_id, 
+    canisterId: canisterId,
   });
   return { actor, agent };
 }
@@ -43,11 +43,7 @@ class ActorController {
     const { agent, actor } = createActor(identity);
     // The root key only has to be fetched for local development environments
     if (isLocalEnv) {
-      console.log('sdfd')
-      //await agent.fetchRootKey();
-
       await agent.fetchRootKey().then(() => {
-        console.log('here')
       }).catch((err) => {
         console.warn(
           "Unable to fetch root key. Check to ensure that your local replica is running"
@@ -62,7 +58,6 @@ class ActorController {
    * Get the actor instance to run commands on the canister.
    */
   get actor() {
-    console.log('CounterActor',this._isAuthenticated)
     return this._actor;
   }
 
@@ -71,7 +66,6 @@ class ActorController {
    * to create a new actor with it, so they pass their Principal to the backend.
    */
   async authenticateActor(identity: Identity) {
-    console.log("authenticateActor")
     this._actor = this.initBaseActor(identity);
     this._isAuthenticated = true;
   }
